@@ -46,7 +46,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
 	args = _build_parser().parse_args(argv)
-	expected = _to_browser_use_skill(_read_source(args.source))
+	try:
+		source_text = _read_source(args.source)
+	except (OSError, UnicodeError) as exc:
+		print(f'Could not read skill source {args.source!r}: {exc}', file=sys.stderr)
+		return 1
+	expected = _to_browser_use_skill(source_text)
 	output_paths = args.output or [DEFAULT_REPO_OUTPUT_PATH, DEFAULT_PACKAGE_OUTPUT_PATH]
 
 	if args.check:
